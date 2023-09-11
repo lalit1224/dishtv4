@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details</title>
+    <!-- Include Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.15/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Custom styles for the task list items */
+        .task-item {
+            display: flex;
+            justify-content: space-between; /* Align buttons to the right */
+            align-items: center; /* Vertically center the buttons */
+        }
+
+        /* Style for the edit and delete buttons */
+        .task-buttons button {
+            margin-left: 1rem;
+        }
+
+        /* ...
+        /* New styles for the sections */
+        .container {
+            max-width: 70%; /* Set the maximum width to 70% */
+            margin: 0 auto; /* Center the container */
+        }
+
+        /* Add margin between the form section and task elements section */
+        #tasks {
+            margin-top: 2rem; /* You can adjust this margin value as needed */
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Navbar section -->
+    <nav class="bg-blue-500 p-4 text-white flex justify-between items-center mb-6">
+        <!-- Left corner: Logo -->
+        <div class="flex items-center">
+            <!-- Add your logo here -->
+            <img src="dishtv.jpg" alt="Logo" class="h-8 w-8 mr-2">
+            <span class="text-xl font-bold">Dishtv</span>
+        </div>
+
+        <!-- Right corner: Home and Login links -->
+        <div class="space-x-4">
+            <a href="/" class="text-white">Home</a>
+            <a href="#" class="text-white">Login</a>
+        </div>
+    </nav>
+
+    <!-- Product details and completion progress sections -->
+    <div class="container mx-auto my-8 grid grid-cols-2 gap-8">
+        <!-- Product details container -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <!-- Loading message while fetching data -->
+            <p id="loadingMessage" class="text-center text-gray-500 mb-4">Loading product details...</p>
+            <!-- Product details content -->
+            <div id="productDetailsContainer" style="display: none;">
+                <h2 class="text-2xl font-bold mb-4" id="productName"></h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="font-bold">Product Number:</div>
+                    <div id="productNumber"></div>
+                    <div class="font-bold">Start Date:</div>
+                    <div id="startDate"></div>
+                    <div class="font-bold">End Date:</div>
+                    <div id="endDate"></div>
+                    <div class="font-bold">Status:</div>
+                    <div id="status"></div>
+                    <div class="font-bold">Percent Complete:</div>
+                    <div id="percentComplete"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Completion progress container -->
+        <div class="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center justify-center">
+            <h2 class="text-2xl font-bold mb-4">Completion Progress</h2>
+            <div class="relative w-24 h-24">
+                <!-- Circular progress bar -->
+                <div class="absolute w-full h-full rounded-full bg-gray-300"></div>
+                <div id="completionBar" class="absolute w-full h-full rounded-full bg-blue-500" style="clip-path: polygon(0 0, 100% 0, 100% 100%, 0 var(--percentComplete, 0%));"></div>
+                <span class="absolute inset-0 flex items-center justify-center text-white font-bold" id="percentCompleteText"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subtasks container -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mt-8">
+        <div class="container mx-auto mt-8">
+            <h1 class="text-3xl font-semibold mb-4">Notes and Tasks</h1>
+            <!-- New Task Form -->
+            <form id="newTaskForm" class="space-y-2">
+                <div>
+                    <label for="newTitle" class="block text-gray-700 font-bold">Title</label>
+                    <input type="text" id="newTitle" name="newTitle" class="mt-1 p-2 border border-gray-300 rounded w-full" required>
+                </div>
+                <div>
+                    <label for="newDescription" class="block text-gray-700 font-bold">Description</label>
+                    <textarea id="newDescription" name="newDescription" rows="2" class="mt-1 p-2 border border-gray-300 rounded w-full"></textarea>
+                </div>
+                <div>
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">New Task</button>
+                </div>
+            </form>
+            <div id="tasks" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <!-- JavaScript to fetch and display product details -->
+    <script>
+        let productId; // Define productId variable
+        let taskId; // Define taskId variable
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const loadingMessage = document.getElementById('loadingMessage');
+            const productDetailsContainer = document.getElementById('productDetailsContainer');
+            const productName = document.getElementById('productName');
+            const productNumber = document.getElementById('productNumber');
+            const startDate = document.getElementById('startDate');
+            const endDate = document.getElementById('endDate');
+            const status = document.getElementById('status');
+            const percentComplete = document.getElementById('percentComplete');
+
+            async function fetchProductDetails() {
+                const urlParams = new URLSearchParams(window.location.search);
+                productId = urlParams.get('productId'); // Assign productId
+
+                try {
+                    const response = await fetch(`/api/products/${productId}`);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch product details');
+                    }
+
+                    const productDetails = await response.json();
+                    loadingMessage.style.display = 'none';
+                    productDetailsContainer.style.display = 'block';
+                    productName.textContent = productDetails.productName;
+                    productNumber.textContent = productDetails.productNumber;
+                    startDate.textContent = productDetails.startDate;
+                    endDate.textContent = productDetails.endDate;
+                    status.textContent = productDetails.status;
+                    percentComplete.textContent = productDetails.percentComplete + '%';
+                    // You can add more elements to display other product details if needed
+                } catch (error) {
+                    console.error('Error fetching product details:', error);
+                    alert('Error fetching product details. Please try again later.');
+                }
+            }
+
+            // Fetch product details on page load
+            await fetchProductDetails();
+        });
+    </script>
+
+    <!-- JavaScript to manage tasks -->
+    <script>
+        async function fetchTasks() {
+            const response = await fetch(`/api/products/${productId}/tasks`);
+            const tasks = await response.json();
+            return tasks;
+        }
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            // Define productId variable
+
+            const urlParams = new URLSearchParams(window.location.search);
+            productId = urlParams.get('productId');
+
+            document.getElementById('newTaskForm').addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                const newTitle = document.getElementById('newTitle').value;
+                const newDescription = document.getElementById('newDescription').value;
+
+                if (!newTitle.trim()) return; // Don't add empty tasks
+
+                const response = await fetch(`/api/products/${productId}/tasks`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title: newTitle, description: newDescription }),
+                });
+
+                if (response.ok) {
+                    // Clear form fields and refresh tasks
+                    document.getElementById('newTitle').value = '';
+                    document.getElementById('newDescription').value = '';
+                    loadTasks();
+                }
+            });
+
+            // Function to get a random background color
+            function getRandomBackgroundColor() {
+                const colors = [
+                    'bg-red-200', 'bg-yellow-200', 'bg-green-200', 'bg-blue-200', 'bg-indigo-200',
+                    'bg-purple-200', 'bg-pink-200', 'bg-orange-200', 'bg-teal-200', 'bg-cyan-200',
+                ];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+
+            function createTaskElement(task) {
+                const taskElement = document.createElement('div');
+                taskElement.className = `relative px-4 py-2 border border-gray-300 shadow-md bg-white rounded-md overflow-hidden transition-all duration-300 transform hover:scale-105 ${getRandomBackgroundColor()}`;
+                taskElement.innerHTML = `
+                    <h2 class="text-lg font-semibold">${task.title}</h2>
+                    <p class="text-gray-600">${task.description || ''}</p>
+                    <button id="edit-${task._id}" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded">Edit</button>
+                    <button id="delete-${task._id}" class="mt-2 bg-red-500 text-white px-4 py-2 rounded">Delete</button>
+                `;
+
+                // Edit and Delete buttons
+                const editButton = taskElement.querySelector(`#edit-${task._id}`);
+                const deleteButton = taskElement.querySelector(`#delete-${task._id}`);
+
+                // Expandable description
+                const descriptionElement = document.createElement('p');
+                descriptionElement.className = 'text-gray-600 mt-2 opacity-0 max-h-0 overflow-hidden transition-all duration-300';
+                descriptionElement.textContent = task.description || '';
+                taskElement.appendChild(descriptionElement);
+
+                // Edit task content
+                editButton.addEventListener('click', (event) => {
+                    event.stopPropagation(); // Prevents the click from expanding the description
+                    const newTitle = prompt('Edit task title:', task.title);
+                    const newDescription = prompt('Edit task description:', task.description);
+                    if (newTitle !== null && newDescription !== null) {
+                        task.title = newTitle;
+                        task.description = newDescription;
+                        updateTask(task);
+                    }
+                });
+
+                // Delete task
+                deleteButton.addEventListener('click', async (event) => {
+                    event.stopPropagation(); // Prevents the click from expanding the description
+                    const confirmDelete = confirm('Are you sure you want to delete this task?');
+                    if (confirmDelete) {
+                        await fetch(`/api/products/${productId}/tasks/${task._id}`, { method: 'DELETE' });
+                        loadTasks();
+                    }
+                });
+
+                // Add click event to expand/collapse description
+                taskElement.addEventListener('click', () => {
+                    descriptionElement.classList.toggle('opacity-0', !descriptionElement.classList.contains('opacity-0'));
+                    descriptionElement.classList.toggle('max-h-0', !descriptionElement.classList.contains('max-h-0'));
+                });
+
+                return taskElement;
+            }
+
+            async function updateTask(task) {
+                await fetch(`/api/products/${productId}/tasks/${task._id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(task),
+                });
+                loadTasks();
+            }
+
+            async function loadTasks() {
+                const tasksContainer = document.getElementById('tasks');
+                tasksContainer.innerHTML = ''; // Clear existing tasks
+
+                const tasks = await fetchTasks();
+                tasks.forEach((task) => {
+                    const taskElement = createTaskElement(task);
+                    tasksContainer.appendChild(taskElement);
+                });
+            }
+
+            // Initial load
+            loadTasks();
+        });
+    </script>
+</body>
+</html>

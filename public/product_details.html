@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+    <!-- Include Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.15/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    font-family: 'Lato', sans-serif;
+}
+
+.progress {
+       
+    height: 160px;
+    width: 160px;
+    cursor: pointer;
+   
+}
+
+.progress-circle {
+  transform: rotate(-90deg);
+	margin-top: -40px;
+}
+
+.progress-circle-back {
+	fill: none; 
+	stroke: #D2D2D2;
+	stroke-width:10px;
+}
+
+.progress-circle-prog {
+	fill: none; 
+	stroke: #6567fb;
+	stroke-width: 10px;  
+	stroke-dasharray: 0 999;    
+	stroke-dashoffset: 0px;
+    transition: stroke-dasharray 0.7s linear 0s;
+}
+
+.progress-text {
+	width: 100%;
+	position: absolute;
+	top: 60px;
+	text-align: center;
+	font-size: 2em;
+}
+
+
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <!-- Navbar section -->
+    <nav class="bg-blue-500 p-4 text-white flex justify-between items-center">
+        <!-- Left corner: Logo -->
+        <div class="flex items-center">
+            <!-- Add your logo here -->
+            <img src="dishtv.jpg" alt="Logo" class="h-8 w-8 mr-2">
+            <span class="text-xl font-bold">Dishtv</span>
+        </div>
+
+        <!-- Right corner: Home and Login links -->
+        <div class="space-x-4">
+            <a href="/" class="text-white">Home</a>
+            <!-- <a href="product.html">Add New Product</a> -->
+            <!-- <a href="#" class="text-white">Login</a> -->
+        </div>
+    </nav>
+
+    <!-- Product details and completion progress sections -->
+    <div class="container mx-auto my-8 grid grid-cols-2 gap-8">
+        <!-- Product details container -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <!-- Loading message while fetching data -->
+            <p id="loadingMessage" class="text-center text-gray-500 mb-4">Loading product details...</p>
+            <!-- Product details content -->
+            <div id="productDetailsContainer" style="display: none;">
+                <h2 class="text-2xl font-bold mb-4" id="productName"></h2>
+                <div class="grid grid-cols-2 gap-4">
+                    
+                    <div class="font-bold">SR/No.</div>
+                    <div id="productNumber"></div>
+                    <div class="font-bold">Start Date:</div>
+                    <div id="startDate"></div>
+                    <div class="font-bold">End Date:</div>
+                    <div id="endDate"></div>
+                    <div class="font-bold">Status:</div>
+                    <div id="status"></div>
+                    <div class="font-bold">% Complete:</div>
+                    <div id="percentComplete"></div>
+                </div>
+                <!-- Add any other product details you want to display -->
+            </div>
+            <!-- Add "Edit" and "Delete" buttons -->
+            <!-- <div id="productActions" class="mt-4 flex space-x-4">
+                <button id="editButton" class="bg-blue-500 text-white px-4 py-2 rounded">Edit</button>
+                <button id="deleteButton" class="bg-red-500 text-white px-4 py-2 rounded">Delete</button>
+            </div> -->
+        </div>
+
+         <!-- Completion progress container -->
+        <!-- <div class="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center justify-center">
+            <h2 class="text-2xl font-bold mb-4">Completion Progress</h2>
+            <div class="relative w-24 h-24">
+        
+                <div class="absolute w-full h-full rounded-full bg-gray-300"></div>
+                <div id="completionBar" class="absolute w-full h-full rounded-full bg-blue-500" style="clip-path: polygon(0 0, 100% 0, 100% 100%, 0 var(--percentComplete, 0%));"></div>
+                <span class="absolute inset-0 flex items-center justify-center text-white font-bold" id="percentCompleteText"></span>
+            </div>
+        </div> -->
+
+        <!-- //new progress bar -->
+       <!-- <div class="bg-white rounded-lg shadow-lg p-8 flex flex-col items-center justify-center">
+            <div class="progress">
+                <svg class="progress-circle ml-6" width="200px" height="200px" xmlns="http://www.w3.org/2000/svg">
+                    <circle class="progress-circle-back"
+                            cx="80" cy="80" r="74"></circle>
+                    <circle class="progress-circle-prog"
+                            cx="80" cy="80" r="74"></circle>
+                </svg>
+                <div id="textprogress"></div>
+                <div class="progress-text" data-progress="0">0%</div>
+            </div>	
+        </div>-->
+        <div class="bg-white rounded-lg shadow-lg p-8 flex flex-col items-center justify-center" >
+            <div class="progress" style="display: flex;  
+            align-items: center;
+            height:100%
+            ">
+            
+            <svg class="progress-circle ml-6" style="margin: 0 auto; display: block;" width="200px" height="200px" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" version="1.1">
+                                <circle class="progress-circle-back" cx="80" cy="80" r="74"></circle>
+                                <circle class="progress-circle-prog" cx="80" cy="80" r="74" style="stroke-dasharray: 464, 999;"></circle>
+                            </svg>
+                            
+                            <!-- <div class="progress-text" data-progress="0">0%</div> -->
+                        </div>	
+            <div id="textprogress" style="text-align: center;"></div> 
+            </div>
+    </div>
+
+
+
+
+    </div>
+
+    <!-- Subtasks container -->
+<!-- Subtasks container -->
+<div class="bg-white rounded-lg shadow-lg p-6 mt-8">
+    <h2 class="text-2xl font-bold mb-4">Details</h2>
+    <div id="subtaskList" class="space-y-4"></div>
+</div>
+
+
+
+    <!-- JavaScript to fetch and display product details -->
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const loadingMessage = document.getElementById('loadingMessage');
+            const productDetailsContainer = document.getElementById('productDetailsContainer');
+            const productName = document.getElementById('productName');
+            const productNumber = document.getElementById('productNumber');
+            const startDate =  document.getElementById('startDate');
+            const endDate = document.getElementById('endDate');
+            const status = document.getElementById('status');
+            const percentComplete = document.getElementById('percentComplete');
+            const progresstext = document.getElementById('textprogress')
+
+
+       
+            let pc;
+
+
+            
+//completion progress 
+
+    function progressBar(progressVal,totalPercentageVal = 100) {
+    var strokeVal = (4.64 * 100) /  totalPercentageVal;
+	var x = document.querySelector('.progress-circle-prog');
+    x.style.strokeDasharray = progressVal * (strokeVal) + ' 999';
+	var el = document.querySelector('.progress-text'); 
+	var from = $('.progress-text').data('progress');
+	$('.progress-text').data('progress', progressVal);
+	var start = new Date().getTime();
+  
+	setTimeout(function() {
+	    var now = (new Date().getTime()) - start;
+	    var progress = now / 700;
+	    el.innerHTML = progressVal / totalPercentageVal * 100 + '%';
+	    if (progress < 1) setTimeout(arguments.callee, 10);
+	}, 10);
+
+}
+
+
+
+
+            async function fetchProductDetails() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const productId = urlParams.get('productId');
+
+                try {
+                    const response = await fetch(`/api/products/${productId}`);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch product details');
+                    }
+
+                    const productDetails = await response.json();
+                    loadingMessage.style.display = 'none';
+                    productDetailsContainer.style.display = 'block';
+                    productName.textContent = productDetails.productName;
+                    productNumber.textContent = productDetails.productNumber;
+                    startDate.textContent = moment(productDetails.startDate).utc().format('MMM DD, YYYY');
+                    endDate.textContent =  moment(productDetails.endDate).utc().format('MMM DD, YYYY');
+                    status.textContent = productDetails.status;
+                    percentComplete.textContent = productDetails.percentComplete + '%';
+                    textprogress.textContent= productDetails.percentComplete + '%';
+                    console.log(productDetails.startDate);
+                    // You can add more elements to display other product details if needed
+                    pc=productDetails.percentComplete;
+                    
+                } catch (error) {
+                    console.error('Error fetching product details:', error);
+                    alert('Error fetching product details. Please try again later.');
+                }
+            }
+            //format date fun
+            function format (date) {  
+  if (!(date instanceof Date)) {
+    throw new Error('Invalid "date" argument. You must pass a date instance')
+  }
+
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
+
+
+
+
+
+            // Fetch product details on page load
+            await fetchProductDetails();
+            progressBar(pc,100)
+            progresstext.textContent = pc + '%';
+            const editButton = document.getElementById('editButton');
+            editButton.addEventListener('click', () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const productId = urlParams.get('productId');
+                // Redirect to the edit page with the product ID
+                window.location.href = `/edit.html?productId=${productId}`;
+            });
+
+            // Handle "Delete" button click
+            const deleteButton = document.getElementById('deleteButton');
+            deleteButton.addEventListener('click', async () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const productId = urlParams.get('productId');
+                // Send a DELETE request to the backend to delete the product
+                try {
+                    const response = await fetch(`/api/products/${productId}`, {
+                        method: 'DELETE',
+                    });
+                    if (!response.ok) {
+                        throw new Error('Failed to delete product');
+                    }
+                    // Redirect to the home page or a success message
+                    window.location.href = '/'; // Redirect to home page
+                } catch (error) {
+                    console.error('Error deleting product:', error);
+                    alert('Error deleting product. Please try again later.');
+                }
+            });
+        });
+    </script>
+    
+    
+  <script>
+ // ...
+
+// JavaScript to fetch and display product details and subtasks
+document.addEventListener("DOMContentLoaded", async () => {
+    // Existing code for fetching and displaying product details
+
+    const subtaskList = document.getElementById('subtaskList');
+    const percentComplete = document.getElementById('percentComplete');
+  
+    const percentCompleteText = document.getElementById('percentCompleteText');
+    console.log(percentComplete)
+    async function fetchSubtasks() {
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('productId');
+            const response = await fetch(`/api/products/${productId}/tasks`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch subtasks');
+            }
+
+            const subtasks = await response.json();
+            subtaskList.innerHTML = ''; // Clear existing list
+
+            subtasks.forEach(subtask => {
+                const subtaskDiv = document.createElement('div');
+                subtaskDiv.className = 'bg-gray-100 p-4 rounded shadow-md';
+                subtaskDiv.innerHTML = `
+                    <h3 class="text-lg font-semibold">${subtask.title}</h3>
+                    <p class="text-gray-600">${subtask.description}</p>
+                `;
+                subtaskList.appendChild(subtaskDiv);
+            });
+        } catch (error) {
+            console.error('Error fetching subtasks:', error);
+            alert('Error fetching subtasks. Please try again later.');
+        }
+    }
+
+    // Fetch subtasks and populate the list
+    await fetchSubtasks();
+
+
+});
+
+// ...
+
+
+  </script>
+</body>
+</html>
+
+
